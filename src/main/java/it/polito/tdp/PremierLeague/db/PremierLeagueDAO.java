@@ -5,8 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import it.polito.tdp.PremierLeague.model.Action;
+import it.polito.tdp.PremierLeague.model.Archi;
 import it.polito.tdp.PremierLeague.model.Match;
 import it.polito.tdp.PremierLeague.model.Player;
 import it.polito.tdp.PremierLeague.model.Team;
@@ -23,7 +27,7 @@ public class PremierLeagueDAO {
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
 
-				Player player = new Player(res.getInt("PlayerID"), res.getString("Name"));
+				Player player = new Player(res.getInt("PlayerID"), res.getString("Name"),0.f);
 				result.add(player);
 			}
 			conn.close();
@@ -105,6 +109,84 @@ public class PremierLeagueDAO {
 			conn.close();
 			return result;
 			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public Map<Integer, Player> getPlayerMatch(Match match){
+		String sql = "SELECT players.*, (a1.totalSuccessfulPassesAll + a1.assists)/a1.timePlayed as efficenza "
+				+ "FROM actions a1, players "
+				+ "WHERE MatchId = ? "
+				+ "AND a1.PlayerID = players.PlayerID";
+		Map<Integer, Player> result = new HashMap<>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1,match.getMatchID());
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+
+				Player player = new Player(res.getInt("PlayerID"), res.getString("Name"), res.getFloat("efficenza"));
+				result.put(res.getInt("PlayerID"), player);
+			}
+			conn.close();
+			return result;
+			 
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public List<Archi> listAllActionsMatch(Match m, Map<Integer, Player> idMap){
+		String sql = "SELECT a1.PlayerID p1, a2.PlayerID p2, "
+				+"((a1.totalSuccessfulPassesAll + a1.assists)/a1.timePlayed - (a2.totalSuccessfulPassesAll + a2.assists)/a2.timePlayed) as peso "
+				+"FROM actions a1, actions a2 "
+				+"WHERE a1.matchid = a2.MatchID AND a1.PlayerID > a2.PlayerID AND a1.TeamID <> a2.TeamID AND a1.matchid = ? "; 
+		List<Archi> result = new ArrayList<Archi>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, m.getMatchID());
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				
+				Archi arco= new Archi(idMap.get(res.getInt("p1")),idMap.get(res.getInt("p2")),res.getFloat("peso"));
+				result.add(arco);
+			}
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public String getTeamPlayerMatch(Match match,Player player){
+		String sql = "SELECT a1.TeamID"
+				+ "FROM actions a1, players "
+				+ "WHERE MatchId = ? "
+				+ "AND a1.PlayerID = players.PlayerID and PlayerID=?";
+		String result=null;
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1,match.getMatchID()); 
+			st.setInt(2,player.getPlayerID());
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+
+				result= res.getString("TeamID");
+			}
+			conn.close();
+			return result;
+			 
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;

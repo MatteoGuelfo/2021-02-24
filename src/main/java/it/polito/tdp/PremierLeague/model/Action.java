@@ -14,6 +14,7 @@ public class Action {
 	Integer assists;
 	Integer totalFoulsConceded;
 	Integer offsides;
+	Float efficenza;
 	
 	public Action(Integer playerID, Integer matchID, Integer teamID, Integer starts, Integer goals, Integer timePlayed,
 			Integer redCards, Integer yellowCards, Integer totalSuccessfulPassesAll, Integer totalUnsuccessfulPassesAll,
@@ -32,6 +33,7 @@ public class Action {
 		this.assists = assists;
 		this.totalFoulsConceded = totalFoulsConceded;
 		this.offsides = offsides;
+		this.efficenza = (float) ((this.totalSuccessfulPassesAll + this.assists)/this.timePlayed);
 	}
 	
 	

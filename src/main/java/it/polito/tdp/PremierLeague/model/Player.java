@@ -3,11 +3,23 @@ package it.polito.tdp.PremierLeague.model;
 public class Player {
 	Integer playerID;
 	String name;
+	Float efficenza; 
+	double deltaEfficenza; 
 	
-	public Player(Integer playerID, String name) {
+	public double getDeltaEfficenza() {
+		return deltaEfficenza;
+	}
+
+	public void setDeltaEfficenza(double deltaEfficenza) {
+		this.deltaEfficenza = deltaEfficenza;
+	}
+
+	public Player(Integer playerID, String name, Float efficenza) {
 		super();
 		this.playerID = playerID;
 		this.name = name;
+		this.efficenza = efficenza;
+		
 	}
 	
 	public Integer getPlayerID() {
@@ -21,6 +33,15 @@ public class Player {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+
+	public Float getEfficenza() {
+		return efficenza;
+	}
+
+	public void setEfficenza(Float efficenza) {
+		this.efficenza = efficenza;
 	}
 
 	@Override
@@ -50,7 +71,7 @@ public class Player {
 
 	@Override
 	public String toString() {
-		return playerID + " - " + name;
+		return playerID + " - " + name + " delta efficenza: "+ deltaEfficenza;
 	}
 	
 	
